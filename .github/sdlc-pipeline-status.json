@@ -1,0 +1,184 @@
+{
+  "pipeline": {
+    "name": "Agentic SDLC Pipeline",
+    "project": "Automated Documentation Sync",
+    "status": "IN_PROGRESS",
+    "currentAgent": "verification",
+    "startedAt": "2026-08-13",
+    "completedAt": null
+  },
+
+  "agents": [
+    {
+      "id": "requirements-analyst",
+      "name": "Requirements Analyst",
+      "file": ".github/agents/requirements-analyst.agent.md",
+      "step": 1,
+      "status": "COMPLETED",
+      "input": [
+        "capstone-user-story.md"
+      ],
+      "output": [
+        "requirements.md"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": true,
+      "startedAt": null,
+      "completedAt": "2026-08-13",
+      "error": null
+    },
+
+    {
+      "id": "solution-architect",
+      "name": "Solution Architect",
+      "file": ".github/agents/solution-architect.agent.md",
+      "step": 2,
+      "status": "COMPLETED",
+      "input": [
+        "requirements.md"
+      ],
+      "output": [
+        "architecture.md"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": true,
+      "startedAt": null,
+      "completedAt": null,
+      "error": null
+    },
+
+    {
+      "id": "design-reviewer",
+      "name": "Design Reviewer",
+      "file": ".github/agents/design-reviewer.agent.md",
+      "step": 3,
+      "status": "COMPLETED",
+      "input": [
+        "requirements.md",
+        "architecture.md"
+      ],
+      "output": [
+        "design-review.md"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": true,
+      "startedAt": "2026-08-13",
+      "completedAt": null,
+      "error": null
+    },
+
+    {
+      "id": "implementation-planner",
+      "name": "Implementation Planner",
+      "file": ".github/agents/implementation-planner.agent.md",
+      "step": 4,
+      "status": "COMPLETED",
+      "input": [
+        "requirements.md",
+        "architecture.md",
+        "design-review.md"
+      ],
+      "output": [
+        "impl-plan.md"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": true,
+      "startedAt": "2026-08-13",
+      "completedAt": "2026-08-13",
+      "error": null
+    },
+
+    {
+      "id": "implementation",
+      "name": "Implementation Agent",
+      "file": ".github/agents/implementation.agent.md",
+      "step": 5,
+      "status": "COMPLETED",
+      "input": [
+        "requirements.md",
+        "architecture.md",
+        "design-review.md",
+        "impl-plan.md"
+      ],
+      "output": [
+        "source-code",
+        "tests"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": true,
+      "startedAt": "2026-08-13",
+      "completedAt": "2026-08-13",
+      "error": null
+    },
+
+    {
+      "id": "code-reviewer",
+      "name": "Code Reviewer",
+      "file": ".github/agents/code-reviewer.agent.md",
+      "step": 6,
+      "status": "COMPLETED",
+      "input": [
+        "requirements.md",
+        "architecture.md",
+        "design-review.md",
+        "impl-plan.md",
+        "source-code",
+        "tests"
+      ],
+      "output": [
+        "code-review-findings"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": true,
+      "startedAt": "2026-08-13",
+      "completedAt": "2026-08-13",
+      "error": null
+    },
+
+    {
+      "id": "verification",
+      "name": "Verification Agent",
+      "file": ".github/agents/verification.agent.md",
+      "step": 7,
+      "status": "IN_PROGRESS",
+      "input": [
+        "requirements.md",
+        "architecture.md",
+        "source-code",
+        "tests",
+        "code-review-findings"
+      ],
+      "output": [
+        "verification-report.md"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": false,
+      "startedAt": "2026-08-13",
+      "completedAt": null,
+      "error": null
+    },
+
+    {
+      "id": "pull-request",
+      "name": "Pull Request Agent",
+      "file": ".github/agents/pull-request.agent.md",
+      "step": 8,
+      "status": "NOT_STARTED",
+      "input": [
+        "requirements.md",
+        "architecture.md",
+        "design-review.md",
+        "impl-plan.md",
+        "verification-report.md"
+      ],
+      "output": [
+        "pull-request"
+      ],
+      "humanApprovalRequired": true,
+      "humanApproved": false,
+      "startedAt": null,
+      "completedAt": null,
+      "error": null
+    }
+  ]
+}
