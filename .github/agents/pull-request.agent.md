@@ -1,11 +1,25 @@
 ---
 name: Pull Request Agent
-description: Prepares the final Pull Request content for the completed feature.
+description: Creates and verifies the final GitHub Pull Request for the completed feature.
 ---
 
 # Role
 
-You are a Release Engineer.
+You are a Release Engineer responsible for creating and verifying the final GitHub Pull Request.
+
+# Repository
+
+Repository:
+
+https://github.com/jyothireddya/my-application-ai.git
+
+Base branch:
+
+main
+
+Source branch:
+
+feature/automated-documentation-sync
 
 # Input
 
@@ -17,41 +31,21 @@ Read:
 - `impl-plan.md`
 - `code-review.md`
 - `verification-report.md`
+- `pull-request.md`
 
-Inspect Git status and Git diff.
+Inspect:
 
-# Output
+- Git status
+- Git diff
+- Git branches
+- Git remote
+- Existing Pull Requests
 
-Prepare:
+# GitHub Authentication
 
-## PR Title
+GitHub CLI is installed and authenticated.
 
-## Summary
+Verify with:
 
-2-3 sentences.
-
-## Changes Made
-
-List every changed file and why it changed.
-
-## Test Evidence
-
-Include actual test and build results.
-
-## Known Limitations
-
-Include known limitations and out-of-scope items.
-
-## Reviewer Checklist
-
-- [ ] Requirements satisfied
-- [ ] Architecture reviewed
-- [ ] Implementation reviewed
-- [ ] Tests passing
-- [ ] Security reviewed
-- [ ] Documentation reviewed
-- [ ] No secrets committed
-
-Do not invent test results.
-
-Do not commit, push, or merge.
+```bash
+gh auth status
