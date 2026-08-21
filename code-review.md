@@ -5,7 +5,7 @@
 The remediated implementation provides the approved local login flow: users
 can enter credentials, submit Login, receive a generic invalid-credential
 error, and access a protected account page after valid credentials. The
-implementation is dependency-free and the focused suite passes with 10 tests.
+implementation is dependency-free and the focused suite passes with 11 tests.
 
 The unresolved production authentication, transport, persistence, and
 session decisions remain outside this local demo and are documented in
@@ -15,12 +15,11 @@ defect and the prior request-handling gaps are remediated.
 
 Review evidence:
 
-- `npm.cmd test`: 10 passed, 0 failed.
-- `node --check server.js`: passed.
-- `node --check test/server.test.js`: passed.
-- `package.json` declares no runtime dependencies; no lockfile is present, so
+- `npm test`: 11 passed, 0 failed (10 in [server.test.js](test/server.test.js), 1 placeholder in [src/tests/app.test.js](src/tests/app.test.js) unrelated to US-001).
+- `package.json` declares no runtime dependencies for the login server; no lockfile is present, so
   a lockfile-based audit could not provide additional evidence.
-- Git diff/history: `Not Found`; this workspace is not a Git working tree.
+- Git status shows only agent/instruction/pipeline-status/report files as
+  uncommitted; [server.js](server.js) and [test/server.test.js](test/server.test.js) are unchanged from the prior reviewed version.
 
 ## Correctness
 
@@ -51,6 +50,11 @@ demo behavior and are not presented as broader product scope.
 - Logout has no explicit CSRF token or origin policy. CSRF requirements are
   `Not Found` in the approved requirements, so this is deferred pending an
   approved security baseline rather than treated as silently satisfied.
+- `createCredentialValidator` compares `email`/`password` with `===`
+  ([server.js](server.js#L64-L69)), which is not constant-time. For a
+  local demo this is a lower-impact issue, but it is an easy hardening fix
+  (`crypto.timingSafeEqual` on fixed-length buffers) and should not be carried
+  into any provider that persists real credentials.
 
 ## Error Handling
 
@@ -63,7 +67,7 @@ treated as unauthenticated. The associated cases are exercised in
 
 Provider, network, timeout, permission, and account-state failures remain
 `Not Found` because this local demo has no external provider. They are not
-claimed as implemented and remain a release prerequisite if the scope expands
+claimed as implementein [server.test.js](test/server.test.js) d and remain a release prerequisite if the scope expands
 beyond the documented demo.
 
 ## Test Coverage
@@ -98,24 +102,37 @@ rather than a production multi-component deployment. The in-memory session
 store and hard-coded demo account page match the limitations documented in
 [LOCAL-DEMO.md](LOCAL-DEMO.md).
 
-## Findings
+[src/index.js](src/index.js) and [src/tests/app.test.js](src/tests/app.test.js)
+are an unrelated "Customer Order Service" Express scaffold left over in the
+repository. `src/index.js` requires `express`, which is not declared in
+[package.json](package.json), so it cannot run; the accompanying test only
+asserts `true === true` and does not exercise `src/index.js`. It contributes
+one passing test to the 11-test total but has no connection to US-001. It
+should be removed or clearly separated so it is not mistaken for part of the
+login feature or counted as login test coverage.
 
-| ID | Severity | Current status | Evidence and disposition |
-| --- | --- | --- | --- |
-| F-001 | High | Deferred / accepted for local demo | The validator boundary now exists, no raw credentials are logged, and [LOCAL-DEMO.md](LOCAL-DEMO.md) explicitly limits credentials to environment-provided demo values. A production provider, credential store, and secret-management design remain deferred and block production release. |
-| F-002 | High | Deferred / accepted for local demo | Session lifetime and cookie attributes are now implemented and tested. Default HTTP and opt-in `Secure` behavior are explicitly documented as local-demo constraints; production transport and session policy remain unresolved. |
-| F-003 | High | Deferred / accepted for local demo | Local `/account` access is implemented and tested with process-local sessions. Durable sessions, authorization, account capabilities, and a product destination remain outside the documented demo scope. |
+## Findings
+Resolved | Git history is now available; [server.js](server.js) and [test/server.test.js](test/server.test.js) are confirmed unchanged since the prior review. No lockfile exists, so lockfile-based dependency audit evidence still cannot be produced, but this does not identify a source defect. |
+| F-008 | Medium | New | `createCredentialValidator` uses `===` for password comparison ([server.js](server.js#L64-L69)), which is not constant-time and is a timing side-channel on the login-critical comparison. Recommend `crypto.timingSafeEqual` on fixed-length, encoding-normalized buffers. |
+| F-009 | Low | New | [src/index.js](src/index.js) and [src/tests/app.test.js](src/tests/app.test.js) are an unrelated, non-functional Express scaffold (requires an undeclared `express` dependency) that inflates the test count and is unrelated to US-001. Recommend removing it or excluding it from this feature's scope/PR. |
+
+No current finding requires source or test changes for the documented local
+demo scope. F-001 through F-003 and F-005 remain blockers for a production
+claim or for scope expansion; F-006's undefined provider outcomes have the
+same condition. F-008 is a low-cost hardening recommendation, and F-009 is a
+repository-hygiene item, not a defect in the reviewed login feature High | Deferred / accepted for local demo | Local `/account` access is implemented and tested with process-local sessions. Durable sessions, authorization, account capabilities, and a product destination remain outside the documented demo scope. |
 | F-004 | Medium | Fixed | Malformed cookie decoding is caught and treated as an absent cookie in [server.js](server.js#L16-L27), with regression coverage in [server.test.js](test/server.test.js#L71-L78). |
 | F-005 | Medium | Deferred | No CSRF control was added because the approved requirements do not define one. The remaining risk must be resolved before production or before expanding the security requirements. |
 | F-006 | Medium | Partially fixed; remaining cases deferred | Oversized bodies, body errors, unsupported methods, content types, malformed input, and unknown routes have controlled responses and tests. Provider, network, timeout, permission, and account-state outcomes remain `Not Found` without an approved provider. |
-| F-007 | Low | Accepted evidence limitation | The workspace still has no Git metadata and no lockfile. This prevents independent diff/history review and lockfile-based audit evidence, but does not identify a source defect; the dependency inventory is empty at runtime. |
-
-No current finding requires source or test changes for the documented local
-demo. F-001 through F-003 and F-005 remain blockers for a production claim or
-for scope expansion; F-006's undefined provider outcomes have the same
-condition.
-
-## Overall Result
+11/11 automated tests passing, and prior concrete remediation findings remain
+fixed or covered. Approval is limited to the scope documented in
+[LOCAL-DEMO.md](LOCAL-DEMO.md). Production release remains blocked until an
+approved authentication provider, credential protection, HTTPS transport,
+durable session and account-access model, CSRF/security policy, and provider
+failure taxonomy are defined and verified. New comments (non-blocking for the
+local-demo scope): harden the password comparison to be constant-time
+(F-008), and remove or clearly separate the unrelated Express scaffold under
+`src/` before this change is included in a pull request (F-009)
 
 **APPROVED WITH COMMENTS**
 

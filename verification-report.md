@@ -2,23 +2,24 @@
 
 ## Summary
 
-Phase 7 verification was performed against [requirements.md](requirements.md), [architecture.md](architecture.md), [code-review.md](code-review.md), [LOCAL-DEMO.md](LOCAL-DEMO.md), [server.js](server.js), [test/server.test.js](test/server.test.js), and [package.json](package.json).
+Verification was performed against [requirements.md](requirements.md), [architecture.md](architecture.md), [code-review.md](code-review.md), [LOCAL-DEMO.md](LOCAL-DEMO.md), [server.js](server.js), [test/server.test.js](test/server.test.js), and [package.json](package.json).
 
 The local login flow passes the available automated and syntax checks. The result is **PASS WITH WARNINGS** because the implementation is explicitly a dependency-free local demo and does not provide production authentication, durable sessions, HTTPS transport, or a complete approved security baseline.
 
 ## Build Results
 
-- `node --check server.js`: **PASS**.
-- `node --check test/server.test.js`: **PASS**.
-- `npm.cmd run build`: **NOT AVAILABLE**. `package.json` declares no `build` script; npm reported `Missing script: "build"`.
+- `node --check server.js`: **PASS** (exit code 0).
+- `node --check test/server.test.js`: **PASS** (exit code 0).
+- `npm run build`: **NOT AVAILABLE**. `package.json` declares no `build` script; npm reported `Missing script: "build"` (exit code 1).
 - No application build step is defined in the repository.
 
 ## Unit Test Results
 
-- Command: `npm.cmd test`
+- Command: `npm test` (runs `node --test`)
 - Result: **PASS**
-- Evidence: 10 tests passed, 0 failed, 0 skipped, 0 cancelled.
-- Test duration reported by Node: approximately 396 ms.
+- Evidence: 11 tests passed, 0 failed, 0 skipped, 0 cancelled, 0 todo.
+- Test duration reported by Node: approximately 487 ms.
+- Test breakdown: 1 unrelated placeholder test (`application test configuration is available` under the `Customer Order Service` suite in [src/tests/app.test.js](src/tests/app.test.js), not connected to US-001) plus 10 login-feature tests in [test/server.test.js](test/server.test.js): `renders the login form`, `logs in with valid credentials and protects the account page`, `rejects invalid credentials with a generic error`, `rejects missing fields and malformed email addresses`, `redirects unauthenticated users and invalidates sessions on logout`, `treats malformed session cookies as unauthenticated`, `sets explicit session attributes and honors session expiry`, `adds Secure only when explicitly enabled`, `rejects unsupported login methods and content types`, `rejects oversized login bodies with a controlled response`.
 
 ## Integration Test Results
 
@@ -61,8 +62,8 @@ Verified by automated tests and source inspection:
 - Session identifiers use `crypto.randomUUID()`.
 - Session cookies use `HttpOnly`, `SameSite=Lax`, `Path=/`, and `Max-Age`; `Secure` is available only when explicitly enabled.
 - Invalid-login feedback is generic and does not distinguish account existence.
-- A targeted PowerShell scan found no repository-provided secret values or private keys. Matches were expected credential-related implementation and documentation terms.
-- `npm.cmd audit --omit=dev`: **NOT AVAILABLE** because the repository has no lockfile; npm reported `ENOLOCK`.
+- `createCredentialValidator` still uses `===` for the password comparison rather than a constant-time comparison (matches open finding F-008 in [code-review.md](code-review.md); not a regression, previously identified and deferred as low-cost hardening).
+- `npm audit --omit=dev`: **NOT AVAILABLE**. No `package-lock.json`, `npm-shrinkwrap.json`, or `yarn.lock` is present in the repository (confirmed via file checks), so no lockfile-based dependency audit could be run. `package.json` declares no runtime dependencies.
 - Production HTTPS enforcement, external credential storage, durable sessions, CSRF protection, rate limiting, lockout, MFA, audit logging, and provider security controls are **Not Found** or explicitly deferred by [LOCAL-DEMO.md](LOCAL-DEMO.md) and the approved architecture.
 
 ## Documentation Quality
@@ -73,8 +74,8 @@ Verified by automated tests and source inspection:
 
 ## Failed Checks
 
-1. `npm.cmd run build` could not run because no `build` script is declared.
-2. `npm.cmd audit --omit=dev` could not run because no lockfile exists.
+1. `npm run build` could not run because no `build` script is declared.
+2. `npm audit --omit=dev` could not run because no lockfile exists.
 3. Production-level authentication, transport, durable-session, and complete security verification could not pass because those capabilities and requirements are not implemented or defined for this local demo.
 
 ## Known Limitations
@@ -84,10 +85,12 @@ Verified by automated tests and source inspection:
 - The default server uses HTTP. HTTPS termination and production transport policy are outside the demo.
 - Account access is represented by a hard-coded local account page; durable identity, authorization, destination, and account capabilities are not defined.
 - CSRF policy, rate limiting, lockout, MFA, recovery, account-state handling, provider outages, and audit requirements are not defined or tested.
-- No lockfile, dependency audit result, Git history, or Git diff evidence is available in this workspace.
+- Password comparison uses `===` rather than a constant-time comparison (open finding F-008, low-cost hardening recommendation, not blocking for local-demo scope).
+- [src/index.js](src/index.js) and [src/tests/app.test.js](src/tests/app.test.js) remain an unrelated Express scaffold that requires an undeclared `express` dependency and contributes one unrelated passing test to the total (open finding F-009).
+- No lockfile or dependency audit result is available in this workspace.
 
 ## Overall Result
 
 **PASS WITH WARNINGS**
 
-FR-001 through FR-004 and the implemented local-demo edge cases are supported by passing automated tests and syntax checks. The result is not a production PASS because the exact limitations and unavailable evidence listed above remain unresolved.
+FR-001 through FR-004 and the implemented local-demo edge cases are supported by passing automated tests (11/11) and syntax checks (`node --check` on both `server.js` and `test/server.test.js`). The result is not a production PASS because the build script and dependency-audit checks are not available, and the documented local-demo limitations (session durability, HTTPS, CSRF, credential storage, and the non-constant-time password comparison) remain unresolved.
