@@ -85,3 +85,13 @@ Clarification is needed before architecture or implementation decisions are appr
 8. Are password recovery, registration, remember-me, multi-factor authentication, or rate limiting in scope? Current scope: `Not Found`.
 
 No clarification is required to record the baseline requirements above. Human approval is required before adding behavior from these open questions or advancing to architecture with those details treated as defined scope.
+
+## 10. Confluence Sources
+
+Retrieved at runtime on 2026-08-25 via the connected Atlassian MCP server, scoped to the authoritative space referenced by the Requirements Analyst (`jyothi1`, https://jyothiannapureddy6-1786346826609.atlassian.net/wiki/spaces/jyothi1/overview).
+
+| Page | URL | Relevant requirements obtained |
+| --- | --- | --- |
+| GitHub Copilot Capstone Project | https://jyothiannapureddy6-1786346826609.atlassian.net/wiki/spaces/jyothi1/pages/425992/GitHub+Copilot+Capstone+Project | Reproduces the same US-001 Login user story and the same four acceptance criteria as `capstone-user-story.md`. No additional functional, non-functional, or technology requirements are present on this page. No conflicts with `capstone-user-story.md` were found. |
+
+Other pages found in the connected Atlassian site (e.g. `automated-documentation-sync-login - Technical Profile (Auto-Generated)` in the separate `jyothi` space, and `Capstone-Project` in the separate `codemiecpa` space) are outside the `jyothi1` space designated as authoritative for this project and describe a different/broader technical profile (Express, PostgreSQL, Jest, Docker) or a different login story (username-based). They are not treated as requirements for this pipeline without explicit human approval to expand scope or change the authoritative source.
